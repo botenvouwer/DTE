@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+        <head>
+                <title>Real time table editor v1 - check with diffrent browsers</title>
+                <style type="text/css">
+                        html, body {
+                                margin: 0;
+                                padding: 20px;
+                                font-family: Arial;
+                                font-size: 16px;
+                        }
+                </style>
+                <script src="/socket.io/socket.io.js"></script>
+                <script type="text/javascript">
+                        window.onload = function() {
+                                var start = document.getElementById("main");
+                                var socket = io.connect('http://localhost:3250');
+                                
+								socket.on('welcome', function (data) {
+									console.log(data);
+                                    start.innerHTML = '<h2>Real time table editor v1 - check it out with diffrent browsers</h2> <input type="text" id="name"> <input type="text" id="sirname"> <input type="number" id="age"> <input type="button" value="Test" id="send"><hr><div id="content">' + makeTable(data) + "</div>";
+                                	
+									var send = document.getElementById("send");
+									send.onclick = function() {
+										
+										var name = document.getElementById("name").value;
+										var sirname = document.getElementById("sirname").value;
+										var age = document.getElementById("age").value;
+										
+	                                    socket.emit("add", { name: name,sirname: sirname,age: age });
+                                	}
+									
+								});
+                                
+								socket.on('update', function (data) {
+                                	var content = document.getElementById("content");
+									content.innerHTML = makeTable(data);
+                                });
+								
+								function makeTable(table){
+									var htmlTable = '';
+									var q = 1;
+									table.forEach(function(row){
+										if(q == 1){
+											htmlTable += parseRow(row, 1);
+										}
+										else{
+											htmlTable += parseRow(row, 0);
+										}
+										q++;
+									});
+									return '<table>'+htmlTable+'</table>';
+								}
+								
+                                function parseRow(row, mode){
+									
+									var cell = (mode == 1 ? 'th' : 'td');
+									
+									var tableRow = '';
+									row.forEach(function(value){
+										tableRow += '<'+cell+'>'+value+'</'+cell+'>';
+									});
+									return '<tr>'+tableRow+'</tr>';
+								}
+                        }
+                </script>
+        </head>
+        <body id="main">
+                
+        </body>
+</html>
